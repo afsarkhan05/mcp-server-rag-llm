@@ -1,11 +1,9 @@
 package com.mcp.rag.llm.module.tool;
 
 import com.mcp.rag.llm.module.entity.Iab;
-import com.mcp.rag.llm.module.service.CacheService;
 import com.mcp.rag.llm.module.service.IabCategoriesService;
 import com.mcp.rag.llm.module.service.IabSearchService;
 import org.springframework.ai.tool.annotation.Tool;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -16,12 +14,7 @@ import java.util.stream.Collectors;
 public class IabTool {
 
     private final IabCategoriesService iabService;
-    @Autowired
-    private CacheService cacheService;
 
-    private static final String CACHE_PREFIX_SEARCH = "iab:search";
-
-    @Autowired
     public IabTool(IabCategoriesService iabService) {
         this.iabService = iabService;
     }
@@ -126,23 +119,9 @@ public class IabTool {
         }
     }*/
 
-    @Tool(name = "get_cache_stats",
+/*    @Tool(name = "get_cache_stats",
             description = "Get Redis cache statistics")
     public String getCacheStats() {
-        CacheService.CacheStats stats = cacheService.getStats();
-
-        return String.format("""
-        Cache Statistics:
-        - Enabled: %s
-        - Total Cached Entries: %d
-        - TTL: %d seconds (%.1f minutes)
-        - Status: %s
-        """,
-                stats.enabled() ? "Yes" : "No",
-                stats.totalKeys(),
-                stats.ttl(),
-                stats.ttl() / 60.0,
-                stats.enabled() ? "Active" : "Disabled"
-        );
-    }
+        return service.getStats();
+    }*/
 }

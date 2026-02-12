@@ -74,6 +74,24 @@ public class IabSearchService {
         return Collections.emptyList();
     }
 
+    public String getStats(){
+        CacheService.CacheStats stats = cacheService.getStats();
+
+        return String.format("""
+        Cache Statistics:
+        - Enabled: %s
+        - Total Cached Entries: %d
+        - TTL: %d seconds (%.1f minutes)
+        - Status: %s
+        """,
+                stats.enabled() ? "Yes" : "No",
+                stats.totalKeys(),
+                stats.ttl(),
+                stats.ttl() / 60.0,
+                stats.enabled() ? "Active" : "Disabled"
+        );
+    }
+
     private List<Iab> mapToIab(List<Document> documents) {
         return documents.stream().map(doc -> {
             Map<String, Object> meta = doc.getMetadata();
