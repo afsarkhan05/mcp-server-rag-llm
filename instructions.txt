@@ -1,0 +1,15 @@
+
+ollama serve
+ollama list
+
+docker-compose up -d
+
+curl -vvv -X GET "http://localhost:8080/api/iab/search?name=Automotive"
+docker exec -it cabe1bf12fe1 redis-cli KEYS "*"
+
+
+pkill -f claude
+pkill -f mcp-server-rag-llm
+
+
+docker-compose down

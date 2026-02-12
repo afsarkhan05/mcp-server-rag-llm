@@ -51,7 +51,7 @@ public class IabSearchService {
         List<Document> docs = vectorStore.similaritySearch(
                 SearchRequest.builder()
                         .query(query)
-                        .similarityThreshold(0.75)
+                        .similarityThreshold(0.50)
                         .topK(5)
                         .build()
         );
@@ -67,7 +67,7 @@ public class IabSearchService {
         List<Iab> h2Results = iabService.searchByName(query);
         if (!h2Results.isEmpty()) {
             // Store in cache for next time
-            cacheService.cacheResult(query, h2Results);
+            cacheService.cacheResult(cacheKey, h2Results);
             return h2Results;
         }
 

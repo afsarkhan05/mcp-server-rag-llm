@@ -76,7 +76,10 @@ spring:
           max-idle: 8
           min-idle: 0
 
-
+  # for claude desktop
+  main:
+    banner-mode: off
+    web-application-type: none
 
 
 # Cache Configuration
@@ -84,10 +87,7 @@ cache:
   ttl: 3600  # 1 hour in seconds
   enabled: true
 
-  # for claude desktop
-  main:
-    #banner-mode: off
-    #web-application-type: none
+
 
 
 
@@ -96,11 +96,11 @@ cache:
 logging:
   level:
     io.modelcontextprotocol: DEBUG
-    org.springframework.ai.mcp: DEBUG
-    #root: OFF
-    #org.springframework: OFF
-    #org.hibernate: OFF
-    #com.zaxxer.hikari: OFF
+    org.springframework.ai.mcp: WARN
+    root: WARN
+    org.springframework: OFF
+    org.hibernate: OFF
+    com.zaxxer.hikari: OFF
 
   # for claude desktop
   pattern:

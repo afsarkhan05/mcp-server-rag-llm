@@ -11,14 +11,14 @@ import org.springframework.context.annotation.Bean;
 @SpringBootApplication
 public class Application {
 
-    @Autowired
-    private IabTool iabTool;
+    //@Autowired
+    //private IabTool iabTool;
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }
 
     @Bean
-    public ToolCallbackProvider iabTools() {
+    public ToolCallbackProvider iabTools(IabTool iabTool) {
         return MethodToolCallbackProvider.builder()
                 .toolObjects(iabTool)
                 .build();
