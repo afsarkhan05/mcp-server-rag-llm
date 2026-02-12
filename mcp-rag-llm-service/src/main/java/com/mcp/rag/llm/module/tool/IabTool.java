@@ -6,13 +6,11 @@ import com.mcp.rag.llm.module.service.IabCategoriesService;
 import com.mcp.rag.llm.module.service.IabSearchService;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.function.Function;
 
 @Component
 public class IabTool {
@@ -72,18 +70,22 @@ public class IabTool {
         }
     }
 
-    @Bean
     @Tool(name = "search_iabs_by_name", description = "Search IAB categories semantically or by name.")
-    public Function<String, String> iabTool(IabSearchService service) {
-        return (query) -> {
-            List<Iab> results = service.performTripleTierSearch(query);
-            if (results.isEmpty()) return "No IAB categories found.";
+    public String searchIabsByName(String query, IabSearchService service) {
+        // 1. Perform the search directly
+        List<Iab> results = service.performTripleTierSearch(query);
 
-            return results.stream()
-                    .map(i -> String.format("[%d] %s (Path: %s > %s)", i.getId(), i.getName(), i.getTier1(), i.getTier2()))
-                    .collect(Collectors.joining("\n"));
-        };
+        // 2. Return a direct String or List for the LLM
+        if (results.isEmpty()) {
+            return "No IAB categories found.";
+        }
+
+        return results.stream()
+                .map(i -> String.format("[%d] %s (Path: %s > %s)",
+                        i.getId(), i.getName(), i.getTier1(), i.getTier2()))
+                .collect(Collectors.joining("\n"));
     }
+
     
     /*@Tool(name = "search_iabs_by_name",
             description = "Search iabs by name (partial match). Results are cached for faster subsequent queries.")
