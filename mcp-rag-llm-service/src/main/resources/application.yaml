@@ -47,20 +47,60 @@ spring:
           tool: true
           resource: true
 
+    vectorstore.qdrant.host: localhost
+    vectorstore.qdrant.port: 6334
+    #vectorstore.qdrant.api-key=<your api key>
+    vectorstore.qdrant.collection-name: my_iabs
+    # Optional: automatically create the schema/collection if it doesn't exist
+    vectorstore.qdrant.initialize-schema: true
+
+    ollama:
+      base-url: http://localhost:11434 #http://host.docker.internal:11434
+      chat:
+        options:
+          model: phi3:mini
+      embedding:
+        enabled: true
+        options:
+          model: all-minilm:latest
+
+  # Redis Configuration
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+
+
+
+
+# Cache Configuration
+cache:
+  ttl: 3600  # 1 hour in seconds
+  enabled: true
+
   # for claude desktop
   main:
-    banner-mode: off
-    web-application-type: none
+    #banner-mode: off
+    #web-application-type: none
 
+
+
+#dataFileName: iab.csv
 
 logging:
   level:
     io.modelcontextprotocol: DEBUG
     org.springframework.ai.mcp: DEBUG
-    root: OFF
-    org.springframework: OFF
-    org.hibernate: OFF
-    com.zaxxer.hikari: OFF
+    #root: OFF
+    #org.springframework: OFF
+    #org.hibernate: OFF
+    #com.zaxxer.hikari: OFF
 
   # for claude desktop
   pattern:

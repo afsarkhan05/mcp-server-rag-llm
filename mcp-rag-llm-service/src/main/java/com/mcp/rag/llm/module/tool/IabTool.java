@@ -1,18 +1,27 @@
 package com.mcp.rag.llm.module.tool;
 
 import com.mcp.rag.llm.module.entity.Iab;
+import com.mcp.rag.llm.module.service.CacheService;
 import com.mcp.rag.llm.module.service.IabCategoriesService;
+import com.mcp.rag.llm.module.service.IabSearchService;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.function.Function;
 
 @Component
 public class IabTool {
 
     private final IabCategoriesService iabService;
+    @Autowired
+    private CacheService cacheService;
+
+    private static final String CACHE_PREFIX_SEARCH = "iab:search";
 
     @Autowired
     public IabTool(IabCategoriesService iabService) {
@@ -62,12 +71,35 @@ public class IabTool {
             return "Error retrieving iab: " + e.getMessage();
         }
     }
+
+    @Bean
+    @Tool(name = "search_iabs_by_name", description = "Search IAB categories semantically or by name.")
+    public Function<String, String> iabTool(IabSearchService service) {
+        return (query) -> {
+            List<Iab> results = service.performTripleTierSearch(query);
+            if (results.isEmpty()) return "No IAB categories found.";
+
+            return results.stream()
+                    .map(i -> String.format("[%d] %s (Path: %s > %s)", i.getId(), i.getName(), i.getTier1(), i.getTier2()))
+                    .collect(Collectors.joining("\n"));
+        };
+    }
     
-    @Tool(name = "search_iabs_by_name", description = "Search iabs by iab name (partial match)")
+    /*@Tool(name = "search_iabs_by_name",
+            description = "Search iabs by name (partial match). Results are cached for faster subsequent queries.")
     public String searchIabsByName(String iabName) {
         try {
             if (iabName == null || iabName.trim().isEmpty()) {
                 return "Error: Iab name cannot be empty";
+            }
+
+            // Generate cache key
+            String cacheKey = cacheService.generateCacheKey(CACHE_PREFIX_SEARCH, iabName);
+
+            // Try to get from cache
+            String cachedResult = cacheService.getCachedResult(cacheKey, String.class);
+            if (cachedResult != null) {
+                return "[FROM CACHE] " + cachedResult;
             }
             
             List<Iab> iabs = iabService.searchByName(iabName.trim());
@@ -84,9 +116,31 @@ public class IabTool {
             }
             
             result.append(String.format("\nFound %d iabs", iabs.size()));
+            // Cache the result
+            cacheService.cacheResult(cacheKey, result);
             return result.toString();
         } catch (Exception e) {
             return "Error searching iabs: " + e.getMessage();
         }
+    }*/
+
+    @Tool(name = "get_cache_stats",
+            description = "Get Redis cache statistics")
+    public String getCacheStats() {
+        CacheService.CacheStats stats = cacheService.getStats();
+
+        return String.format("""
+        Cache Statistics:
+        - Enabled: %s
+        - Total Cached Entries: %d
+        - TTL: %d seconds (%.1f minutes)
+        - Status: %s
+        """,
+                stats.enabled() ? "Yes" : "No",
+                stats.totalKeys(),
+                stats.ttl(),
+                stats.ttl() / 60.0,
+                stats.enabled() ? "Active" : "Disabled"
+        );
     }
 }
