@@ -4,6 +4,7 @@ import com.mcp.rag.llm.module.entity.Iab;
 import com.mcp.rag.llm.module.service.IabCategoriesService;
 import com.mcp.rag.llm.module.service.IabSearchService;
 import org.springframework.ai.tool.annotation.Tool;
+import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -14,9 +15,11 @@ import java.util.stream.Collectors;
 public class IabTool {
 
     private final IabCategoriesService iabService;
+    private final IabSearchService service;
 
-    public IabTool(IabCategoriesService iabService) {
+    public IabTool(IabCategoriesService iabService, IabSearchService service) {
         this.iabService = iabService;
+        this.service = service;
     }
     
     @Tool(name = "get_all_iabs", description = "List or Get all iab categories in the library")
@@ -64,7 +67,8 @@ public class IabTool {
     }
 
     @Tool(name = "search_iabs_by_name", description = "Search IAB categories semantically or by name.")
-    public String searchIabsByName(String query, IabSearchService service) {
+    public String searchIabsByName(@ToolParam(description = "The search query or category name") String query) {
+
         // 1. Perform the search directly
         List<Iab> results = service.performTripleTierSearch(query);
 
