@@ -18,7 +18,7 @@ public class Application {
     }
 
     @Bean
-    public ToolCallbackProvider iabTools() {
+    public ToolCallbackProvider availableIabTools() {
         return MethodToolCallbackProvider.builder()
                 .toolObjects(iabTool)
                 .build();

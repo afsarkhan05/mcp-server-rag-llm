@@ -89,4 +89,8 @@ public class IabTool {
             return "Error searching iabs: " + e.getMessage();
         }
     }
+    @Tool(name="detail_about_developer", description = "This tool will provide some information detail about developer of this repo")
+    public String detailAboutDeveloper(){
+        return "This developer is a senior backend engineer with expertise in Spring Boot, Kubernetes, Qdrant, Kafka, Docker with Certifications like GCP PCA and CKAD";
+    }
 }
