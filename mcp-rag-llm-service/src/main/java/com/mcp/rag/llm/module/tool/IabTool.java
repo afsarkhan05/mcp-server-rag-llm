@@ -3,12 +3,14 @@ package com.mcp.rag.llm.module.tool;
 import com.mcp.rag.llm.module.entity.Iab;
 import com.mcp.rag.llm.module.service.CacheService;
 import com.mcp.rag.llm.module.service.IabCategoriesService;
+import com.mcp.rag.llm.module.service.QdrantService;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 public class IabTool {
@@ -17,10 +19,13 @@ public class IabTool {
 
     private CacheService cacheService;
 
+    private QdrantService qdrantService;
+
     @Autowired
-    public IabTool(IabCategoriesService iabService, CacheService cacheService) {
+    public IabTool(IabCategoriesService iabService, CacheService cacheService, QdrantService qdrantService) {
         this.iabService = iabService;
         this.cacheService = cacheService;
+        this.qdrantService = qdrantService;
     }
     
     @Tool(name = "get_all_iabs", description = "List or Get all iab categories in the library")
@@ -66,6 +71,18 @@ public class IabTool {
             return "Error retrieving iab: " + e.getMessage();
         }
     }
+
+    @Tool(name = "search_iabs_by_name_using_qdrant", description = "Search iabs by iab name using qdrant semantic search")
+    public String searchIabsByNameUsingQdrant(String iabName) {
+        String cacheKey = cacheService.generateCacheKey("SEARCH", iabName);
+        List<Iab> iabs = qdrantService.getQdrantSemanticData(iabName);
+        StringBuilder strBuilder = new StringBuilder(getSearchResult(iabs));
+        strBuilder.append(String.format("\nFound %d iabs", iabs.size()));
+        // Store in cache for next time
+        cacheService.cacheResult(cacheKey, strBuilder.toString());
+        return strBuilder.toString();
+    }
+
     
     @Tool(name = "search_iabs_by_name", description = "Search iabs by iab name (partial match)")
     public String searchIabsByName(String iabName) {
@@ -76,26 +93,24 @@ public class IabTool {
 
             String cacheKey = cacheService.generateCacheKey("SEARCH", iabName);
             String cached = cacheService.getCachedResult(cacheKey, String.class);
-            if (cached != null) return cached;
-
-            
-            List<Iab> iabs = iabService.searchByName(iabName.trim());
-            
-            if (iabs.isEmpty()) {
-                return "No iabs found with name containing: " + iabName;
+            List<Iab> iabs = null;
+            if(cached == null || cached.trim().length() == 0){
+                // 1. Perform the search directly
+                iabs = qdrantService.getQdrantSemanticData(iabName);
+                if(iabs == null || iabs.isEmpty()){
+                    iabs = iabService.searchByName(iabName.trim());
+                    if (iabs.isEmpty()) {
+                        return "No iabs found with name containing: " + iabName;
+                    }
+                }
+            }else{
+                return cached;
             }
-            
-            StringBuilder result = new StringBuilder(String.format("Iabs matching '%s':\n", iabName));
-            for (Iab iab : iabs) {
-                result.append(String.format("Iab Details:\nID: %d\nName: '%s'\nTier1: %s\nTier2: %s\nTier3: %s \nTier: %s",
-                        iab.getId(), iab.getName(), iab.getTier1(),
-                        iab.getTier2(), iab.getTier3(), iab.getTier4()));
-            }
-            
-            result.append(String.format("\nFound %d iabs", iabs.size()));
+            StringBuilder strBuilder = new StringBuilder(getSearchResult(iabs));
+            strBuilder.append(String.format("\nFound %d iabs", iabs.size()));
             // Store in cache for next time
-            cacheService.cacheResult(cacheKey, result.toString());
-            return result.toString();
+            cacheService.cacheResult(cacheKey, strBuilder.toString());
+            return strBuilder.toString();
         } catch (Exception e) {
             return "Error searching iabs: " + e.getMessage();
         }
@@ -122,5 +137,14 @@ public class IabTool {
                 stats.ttl() / 60.0,
                 stats.enabled() ? "Active" : "Disabled"
         );
+    }
+
+    private String getSearchResult(List<Iab> results){
+        return results.stream()
+                .map(iab -> String.format("Iab Details:\nID: %d\nName: '%s'\nTier1: %s\nTier2: %s\nTier3: %s \nTier4: %s",
+                        iab.getId(), iab.getName(), iab.getTier1(),
+                        iab.getTier2(), iab.getTier3(), iab.getTier4()))
+                .collect(Collectors.joining("\n"));
+
     }
 }

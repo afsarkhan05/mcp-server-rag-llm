@@ -1,0 +1,41 @@
+spring:
+  # for claude desktop
+  main:
+    banner-mode: off
+    web-application-type: none
+
+  ai:
+    mcp:
+      server:
+        enabled: true
+        stdio: true
+        name: mcp-server-rag-llm
+        version: 1.0.0
+        description: Example MCP Server with RAG LLM
+        resourceChangeNotification: true
+        toolChangeNotification: true
+        promptChangeNotification: true
+        sseEndpoint: /mcp/sse
+        sseMessageEndpoint: /mcp/sse/message
+        type: sync
+        capabilities:
+          completion: true
+          prompt: true
+          tool: true
+          resource: true
+
+server:
+  port: 8080
+
+# ADD THESE for stdio logging:
+logging:
+  level:
+    root: INFO
+    com.mcp.rag: DEBUG
+    org.springframework: WARN
+    org.hibernate: WARN
+  file:
+    name: /tmp/spring-mcp-stdio.log
+  pattern:
+    console: ""  # Empty to prevent console output (critical for stdio!)
+    file: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"

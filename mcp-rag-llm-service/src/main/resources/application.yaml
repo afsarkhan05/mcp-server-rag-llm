@@ -1,6 +1,3 @@
-server:
-  port: 8080
-
 spring:
   application:
     name: mcp-server-rag-llm
@@ -39,44 +36,35 @@ spring:
           max-idle: 8
           min-idle: 0
 
-  # for claude desktop
-  main:
-    banner-mode: off
-    web-application-type: none
 
   ai:
-    mcp:
-      server:
+    vectorstore:
+      qdrant:
+        host: localhost
+        port: 6334
+        #api-key=<your api key>
+        collection-name: redis_qdrant_collection
+        # Optional: automatically create the schema/collection if it doesn't exist
+        initialize-schema: true
+
+    ollama:
+      base-url: http://localhost:11434 #http://host.docker.internal:11434
+      chat:
+        options:
+          model: phi3:mini
+      embedding:
         enabled: true
-        stdio: true
-        name: mcp-server-rag-llm
-        version: 1.0.0
-        description: Example MCP Server with RAG LLM
-        resourceChangeNotification : true
-        toolChangeNotification : true
-        promptChangeNotification: true
-        sseEndpoint : /mcp/sse
-        sseMessageEndpoint: /mcp/sse/message
-        type: sync
-        capabilities:
-          completion: true
-          prompt: true
-          tool: true
-          resource: true
-
-
+        options:
+          model: all-minilm:latest
 
 dataFileName: iab.csv
 
+# Default logging (will be overridden by profiles)
 logging:
   level:
     io.modelcontextprotocol: DEBUG
     org.springframework.ai.mcp: DEBUG
-    root: OFF
-    org.springframework: OFF
-    org.hibernate: OFF
-    com.zaxxer.hikari: OFF
-
-  # for claude desktop
-  pattern:
-    console: "%d{HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    root: WARN  # Changed from OFF to WARN
+    org.springframework: WARN  # Changed from OFF
+    org.hibernate: WARN  # Changed from OFF
+    com.zaxxer.hikari: WARN  # Changed from OFF
