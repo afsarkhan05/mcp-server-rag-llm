@@ -101,6 +101,7 @@ logging:
     org.springframework: OFF
     org.hibernate: OFF
     com.zaxxer.hikari: OFF
+    io.qdrant.client: ERROR
 
   # for claude desktop
   pattern:
