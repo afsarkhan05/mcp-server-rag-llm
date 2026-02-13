@@ -1,6 +1,7 @@
 package com.mcp.rag.llm.module.tool;
 
 import com.mcp.rag.llm.module.entity.Iab;
+import com.mcp.rag.llm.module.service.CacheService;
 import com.mcp.rag.llm.module.service.IabCategoriesService;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,9 +15,12 @@ public class IabTool {
 
     private final IabCategoriesService iabService;
 
+    private CacheService cacheService;
+
     @Autowired
-    public IabTool(IabCategoriesService iabService) {
+    public IabTool(IabCategoriesService iabService, CacheService cacheService) {
         this.iabService = iabService;
+        this.cacheService = cacheService;
     }
     
     @Tool(name = "get_all_iabs", description = "List or Get all iab categories in the library")
@@ -69,6 +73,11 @@ public class IabTool {
             if (iabName == null || iabName.trim().isEmpty()) {
                 return "Error: Iab name cannot be empty";
             }
+
+            String cacheKey = cacheService.generateCacheKey("SEARCH", iabName);
+            String cached = cacheService.getCachedResult(cacheKey, String.class);
+            if (cached != null) return cached;
+
             
             List<Iab> iabs = iabService.searchByName(iabName.trim());
             
@@ -84,6 +93,8 @@ public class IabTool {
             }
             
             result.append(String.format("\nFound %d iabs", iabs.size()));
+            // Store in cache for next time
+            cacheService.cacheResult(cacheKey, result.toString());
             return result.toString();
         } catch (Exception e) {
             return "Error searching iabs: " + e.getMessage();
@@ -92,5 +103,24 @@ public class IabTool {
     @Tool(name="detail_about_developer", description = "This tool will provide some information detail about developer of this repo")
     public String detailAboutDeveloper(){
         return "This developer is a senior backend engineer with expertise in Spring Boot, Kubernetes, Qdrant, Kafka, Docker with Certifications like GCP PCA and CKAD";
+    }
+
+    @Tool(name="redis_stats", description = "This tool will provide redis stats used by this mcp server")
+    public String getStats(){
+        CacheService.CacheStats stats = cacheService.getStats();
+
+        return String.format("""
+        Cache Statistics:
+        - Enabled: %s
+        - Total Cached Entries: %d
+        - TTL: %d seconds (%.1f minutes)
+        - Status: %s
+        """,
+                stats.enabled() ? "Yes" : "No",
+                stats.totalKeys(),
+                stats.ttl(),
+                stats.ttl() / 60.0,
+                stats.enabled() ? "Active" : "Disabled"
+        );
     }
 }

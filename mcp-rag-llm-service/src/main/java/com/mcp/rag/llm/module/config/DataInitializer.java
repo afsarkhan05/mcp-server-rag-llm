@@ -2,29 +2,97 @@ package com.mcp.rag.llm.module.config;
 
 import com.mcp.rag.llm.module.entity.Iab;
 import com.mcp.rag.llm.module.service.IabCategoriesService;
+import com.opencsv.CSVReader;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
+
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
     
     private final IabCategoriesService iabService;
+    private final ResourceLoader resourceLoader;
+
+    @Value("${dataFileName:iab.csv}")
+    private String dataFileName;
     
     @Autowired
-    public DataInitializer(IabCategoriesService iabService) {
+    public DataInitializer(IabCategoriesService iabService, ResourceLoader resourceLoader) {
         this.iabService = iabService;
+        this.resourceLoader = resourceLoader;
     }
     
     @Override
     public void run(String... args) throws Exception {
         // Check if iabs already exist to avoid duplicates
         if (iabService.getAllIabs().size() == 0) {
-            initializeSampleIabs();
+           // initializeSampleIabs();
+            loadInitialData();
         }
     }
-    
-    private void initializeSampleIabs() {
+
+    private void loadInitialData(){
+        // Path matches src/main/resources/data.csv
+
+        Resource resource = resourceLoader.getResource("classpath:" + dataFileName);
+
+        List<Iab> list = new ArrayList<>();
+        try (CSVReader reader = new CSVReader(new InputStreamReader(resource.getInputStream()))) {
+            List<String[]> allRows = reader.readAll();
+
+            // Skip header and process rows
+            for (int i = 1; i < allRows.size(); i++) {
+                String[] row = allRows.get(i);
+
+                // Get values by index
+                Long id = null;
+                Long parentId = null;
+                String name = null;
+                String tier1 = null;
+                String tier2 = null;
+                String tier3 = null;
+                String tier4 = null;
+
+                if(row[0].trim().length() != 0){
+                    id = Long.valueOf(row[0].trim());
+                }
+                if(row[1].trim().length() != 0){
+                    parentId = Long.valueOf(row[1].trim());
+                }
+                if(row[2].trim().length() != 0){
+                    name = row[2].trim();
+                }
+                if(row[3].trim().length() != 0){
+                    tier1 = row[3].trim();
+                }
+                if(row[4].trim().length() != 0){
+                    tier2 = row[4].trim();
+                }
+                if(row[5].trim().length() != 0){
+                    tier3 = row[5].trim();
+                }
+                if(row[6].trim().length() != 0){
+                    tier4 = row[6].trim();
+                }
+                Iab iab = new Iab (id, parentId, name, tier1, tier2, tier3, tier4);
+                iabService.addIab(iab);
+                list.add(iab);
+            }
+            //embedAndStoreData(list);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to load CSV: " + e.getMessage());
+        }
+    }
+
+
+    /*private void initializeSampleIabs() {
         try {
             // Classic Literature
             iabService.addIab(new Iab ( 150, 150, "Attractions", "Attractions", " ", " ", " " ));
@@ -783,5 +851,5 @@ public class DataInitializer implements CommandLineRunner {
         } catch (Exception e) {
             System.err.println("❌ Error initializing sample iabs: " + e.getMessage());
         }
-    }
+    }*/
 }

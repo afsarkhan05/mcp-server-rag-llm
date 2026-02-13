@@ -21,7 +21,7 @@ public interface IabRepository extends JpaRepository<Iab, Long> {
     @Modifying
     @Transactional
     @Query(value = "INSERT INTO iab (id, parent_id, name, tier1, tier2, tier3, tier4) VALUES (:id, :parent_id, :name, :tier1, :tier2, :tier3, :tier4)", nativeQuery = true)
-    void insertWithId(@Param("id") Integer id, @Param("parent_id") Integer parentId, @Param("name") String name
+    void insertWithId(@Param("id") Long id, @Param("parent_id") Long parentId, @Param("name") String name
             , @Param("tier1") String tier1, @Param("tier2") String tier2, @Param("tier3") String tier3, @Param("tier4") String tier4);
 
 
