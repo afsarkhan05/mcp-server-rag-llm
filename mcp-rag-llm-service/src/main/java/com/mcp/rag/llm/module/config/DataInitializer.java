@@ -58,8 +58,8 @@ public class DataInitializer implements CommandLineRunner {
                 String[] row = allRows.get(i);
 
                 // Get values by index
-                Integer id = null;
-                Integer parentId = null;
+                Long id = null;
+                Long parentId = null;
                 String name = null;
                 String tier1 = null;
                 String tier2 = null;
@@ -67,10 +67,10 @@ public class DataInitializer implements CommandLineRunner {
                 String tier4 = null;
 
                 if(row[0].trim().length() != 0){
-                    id = Integer.valueOf(row[0].trim());
+                    id = Long.valueOf(row[0].trim());
                 }
                 if(row[1].trim().length() != 0){
-                    parentId = Integer.valueOf(row[1].trim());
+                    parentId = Long.valueOf(row[1].trim());
                 }
                 if(row[2].trim().length() != 0){
                     name = row[2].trim();
@@ -87,7 +87,7 @@ public class DataInitializer implements CommandLineRunner {
                 if(row[6].trim().length() != 0){
                     tier4 = row[6].trim();
                 }
-                Iab iab = new Iab ( id, parentId, name, tier1, tier2, tier3, tier4);
+                Iab iab = new Iab (id, parentId, name, tier1, tier2, tier3, tier4);
                 iabService.addIab(iab);
                 list.add(iab);
             }

@@ -16,10 +16,10 @@ public class Iab {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(name = "parent_id", nullable = true)
-    private Integer parentId;
+    private Long parentId;
 
     @NotBlank(message = "IAB name is required")
     @Column(name = "name", nullable = false)
@@ -42,7 +42,7 @@ public class Iab {
     public Iab() {}
 
     // Constructor with parameters
-    public Iab(Integer id, Integer parentId, String name, String tier1, String tier2, String tier3, String tier4) {
+    public Iab(Long id, Long parentId, String name, String tier1, String tier2, String tier3, String tier4) {
         this.id = id;
         this.name = name;
         this.tier1 = tier1;

@@ -97,8 +97,8 @@ public class IabSearchService {
             Map<String, Object> meta = doc.getMetadata();
 
             return new Iab(
-                    (Integer) meta.get("id"),
-                    (Integer) meta.get("parentId"),
+                    (Long) meta.get("id"),
+                    (Long) meta.get("parentId"),
                     (String) meta.get("name"),
                     (String) meta.get("tier1"),
                     (String) meta.get("tier2"),

@@ -31,7 +31,6 @@
             <groupId>org.springframework.ai</groupId>
             <artifactId>spring-ai-starter-mcp-server-webmvc</artifactId>
             <version>2.0.0-M2</version>
-            <scope>compile</scope>
         </dependency>
 
         <!-- Spring Boot Data JPA -->
