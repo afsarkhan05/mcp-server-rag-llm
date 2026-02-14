@@ -1,0 +1,35 @@
+# Enable SSE transport
+spring:
+  main:
+    #banner-mode: off
+    web-application-type: servlet  # Changed from 'none' to enable web server
+
+  ai:
+    mcp:
+      server:
+        # Crucial: 2.x versions require the transport type to be explicitly set
+        transport: sse
+        sse:
+          enabled: true
+          path: /mcp/sse
+
+logging:
+  level:
+    root: INFO
+    com.mcp.rag: DEBUG
+    org.springframework: INFO  # Changed to INFO for debugging
+    org.hibernate: WARN
+    io.modelcontextprotocol: DEBUG
+    org.springframework.ai.mcp: DEBUG
+
+  # File logging (optional with SSE, but useful for history)
+  file:
+    name: /tmp/spring-sse-mcp-server
+  
+  # Console logging (you control the terminal, so this is fine)
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+server:
+  port: 8080
