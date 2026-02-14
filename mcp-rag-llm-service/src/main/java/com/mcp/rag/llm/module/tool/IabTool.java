@@ -8,6 +8,7 @@ import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -28,23 +29,29 @@ public class IabTool {
         this.qdrantService = qdrantService;
     }
     
-    @Tool(name = "get_all_iabs", description = "List or Get all iab categories in the library")
+    @Tool(name = "get_all_iabs", description = "Get ALL IAB categories in the taxonomy (749 total). " +
+            "⚠️ Large result set - use filters when possible. " +
+            "Note: This query is not cached due to result size."
+    )
     public String getAllIabCategories() {
         try {
-            List<Iab> iabs = iabService.getAllIabs();
-            
-            if (iabs.isEmpty()) {
-                return "No iabs found in the system";
+            String cacheKey = cacheService.generateCacheKey("SEARCH", "All_Categories");
+            String cached = cacheService.getCachedResult(cacheKey, String.class);
+            List<Iab> iabs = null;
+            if(cached == null || cached.trim().length() == 0){
+                // 1. Perform the search directly
+                iabs = iabService.getAllIabs();
+                if (iabs.isEmpty()) {
+                    return "No iabs found in the system";
+                }
+            }else{
+                return cached;
             }
-            
-            StringBuilder result = new StringBuilder("Iabs in the library:\n");
-            for (Iab iab : iabs) {
-                result.append(String.format("ID: %d | '%s' n",
-                        iab.getId(), iab.getName()));
-            }
-            
-            result.append(String.format("\nTotal iabs: %d", iabs.size()));
-            return result.toString();
+            StringBuilder strBuilder = new StringBuilder(getSearchResult(iabs));
+            strBuilder.append(String.format("\nFound %d iabs", iabs.size()));
+            // Store in cache for next time
+            cacheService.cacheResult(cacheKey, strBuilder.toString());
+            return strBuilder.toString();
         } catch (Exception e) {
             return "Error retrieving iabs: " + e.getMessage();
         }
@@ -56,17 +63,22 @@ public class IabTool {
             if (iabId == null || iabId <= 0) {
                 return "Error: Iab ID must be a positive number";
             }
-            
-            Optional<Iab> iabOpt = iabService.getIabById(iabId);
-            
-            if (iabOpt.isEmpty()) {
-                return "Iab with ID " + iabId + " not found";
+
+            String cacheKey = cacheService.generateCacheKey("SEARCH", iabId.toString());
+            String cached = cacheService.getCachedResult(cacheKey, String.class);
+            List<Iab> iabs = new ArrayList<>();
+            if(cached == null || cached.trim().length() == 0){
+                Optional<Iab> iabOpt = iabService.getIabById(iabId);
+                if (iabOpt.isEmpty()) {
+                    return "Iab with ID " + iabId + " not found";
+                }
+                iabs.add(iabOpt.get());
             }
-            
-            Iab iab = iabOpt.get();
-            return String.format("Iab Details:\nID: %d\nName: '%s'\nTier1: %s\nTier2: %s\nTier3: %s \nTier: %s",
-                    iab.getId(), iab.getName(), iab.getTier1(),
-                    iab.getTier2(), iab.getTier3(), iab.getTier4());
+            StringBuilder strBuilder = new StringBuilder(getSearchResult(iabs));
+            strBuilder.append(String.format("\nFound %d iabs", iabs.size()));
+            // Store in cache for next time
+            cacheService.cacheResult(cacheKey, strBuilder.toString());
+            return strBuilder.toString();
         } catch (Exception e) {
             return "Error retrieving iab: " + e.getMessage();
         }
@@ -84,7 +96,12 @@ public class IabTool {
     }
 
     
-    @Tool(name = "search_iabs_by_name", description = "Search iabs by iab name (partial match)")
+    @Tool(name = "search_iabs_by_name", description = "Search for IAB categories using AI-powered semantic search. " +
+            "Finds conceptually related categories based on meaning, not just keywords. " +
+            "Best for: finding categories by topic description, discovering related categories, " +
+            "or when you don't know exact category names. " +
+            "Example: 'content about cooking' finds Food & Drink, Recipes, Restaurants."
+    )
     public String searchIabsByName(String iabName) {
         try {
             if (iabName == null || iabName.trim().isEmpty()) {
@@ -117,7 +134,9 @@ public class IabTool {
     }
     @Tool(name="detail_about_developer", description = "This tool will provide some information detail about developer of this repo")
     public String detailAboutDeveloper(){
-        return "This developer is a senior backend engineer with expertise in Spring Boot, Kubernetes, Qdrant, Kafka, Docker with Certifications like GCP PCA and CKAD";
+        return "This developer is a senior backend engineer with 17+ years of experience, Having expertise in Spring Boot, Kubernetes, Qdrant, Kafka, Docker " +
+                " Composer, Python, Clouds like GCP, AWS services like S3, GCP, Big Query, Pub/Sub, MemoryStore, Redis and many more services "+
+                " also got Certifications like GCP PCA ,  CKAD and Generative AI Leader, Passionate about coding, Exploring newer technologies ";
     }
 
     @Tool(name="redis_stats", description = "This tool will provide redis stats used by this mcp server")
