@@ -15,8 +15,6 @@ spring:
         resourceChangeNotification: true
         toolChangeNotification: true
         promptChangeNotification: true
-        sseEndpoint: /mcp/sse
-        sseMessageEndpoint: /mcp/sse/message
         type: sync
         capabilities:
           completion: true
