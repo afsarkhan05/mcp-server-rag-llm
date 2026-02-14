@@ -39,8 +39,7 @@ public class DataInitializer implements CommandLineRunner {
     public void run(String... args) throws Exception {
         // Check if iabs already exist to avoid duplicates
         if (iabService.getAllIabs().size() == 0) {
-           // initializeSampleIabs();
-            loadInitialData();
+            //loadInitialData();
         }
     }
 
