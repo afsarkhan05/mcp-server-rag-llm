@@ -64,7 +64,7 @@ public class DataInitializer implements CommandLineRunner {
                 iabService.addIab(iab);
                 list.add(iab);
             }
-            embedAndStoreData(list);
+            //embedAndStoreData(list);
         } catch (Exception e) {
             throw new RuntimeException("Failed to load CSV: " + e.getMessage());
         }

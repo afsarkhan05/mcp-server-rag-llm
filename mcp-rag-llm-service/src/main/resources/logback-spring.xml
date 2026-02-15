@@ -17,11 +17,11 @@
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
-    <!--<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
-    </appender>-->
+    </appender>
 
 
     <!-- Console Appender - DISABLED for stdio! -->
@@ -30,7 +30,7 @@
     <!-- Root logger -->
     <root level="INFO">
         <appender-ref ref="FILE" />
-        <!--<appender-ref ref="CONSOLE" />-->
+        <appender-ref ref="CONSOLE" />
     </root>
 
     <!-- Your package with DEBUG -->
