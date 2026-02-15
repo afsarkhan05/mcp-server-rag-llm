@@ -2,7 +2,7 @@
 
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![Spring AI](https://img.shields.io/badge/Spring%20AI-2.0.0--M2-blue.svg)](https://spring.io/projects/spring-ai)
-[![Java](https://img.shields.io/badge/Java-17%2B-orange.svg)](https://www.oracle.com/java/)
+[![Java](https://img.shields.io/badge/Java-21%2B-orange.svg)](https://www.oracle.com/java/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 A Spring Boot-based Model Context Protocol (MCP) server implementing Retrieval-Augmented Generation (RAG) with support for multiple LLM providers (Ollama, Gemini) and communication protocols (SSE, stdio).
@@ -41,16 +41,16 @@ Built with **Spring Boot 4.0** and **Spring AI 2.0.0-M2** for cutting-edge AI in
 
 ## 🛠️ Tech Stack
 
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| Spring Boot | 4.0 | Application framework |
+| Technology | Version  | Purpose |
+|------------|----------|---------|
+| Spring Boot | 4.0      | Application framework |
 | Spring AI | 2.0.0-M2 | AI/LLM integration layer |
-| Java | 17+ | Programming language |
-| Qdrant | Latest | Vector database for embeddings |
-| Redis | 7+ | Caching layer |
-| H2 Database | Latest | In-memory relational database |
-| Docker | Latest | Container runtime for services |
-| Maven | 3.6+ | Build tool |
+| Java | 21+       | Programming language |
+| Qdrant | Latest   | Vector database for embeddings |
+| Redis | 7+       | Caching layer |
+| H2 Database | Latest   | In-memory relational database |
+| Docker | Latest   | Container runtime for services |
+| Maven | 3.6+     | Build tool |
 
 ### Key Dependencies
 
@@ -171,7 +171,7 @@ Built with **Spring Boot 4.0** and **Spring AI 2.0.0-M2** for cutting-edge AI in
 
 ### Required Software
 
-1. **Java 17+**
+1. **Java 21+**
    ```bash
    java -version
    ```
@@ -254,8 +254,11 @@ Verify services are running:
 # Check Qdrant
 curl http://localhost:6333/health
 
+#Get redis container id
+docker ps -a
+
 # Check Redis
-redis-cli ping
+docker exec -it {replace_with_redis_container_id} redis-cli KEYS "*"
 ```
 
 ## 🚀 Quick Start
