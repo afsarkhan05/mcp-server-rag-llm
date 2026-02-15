@@ -1,5 +1,6 @@
 package com.mcp.rag.llm.module.config;
 
+import com.google.common.collect.Lists;
 import com.mcp.rag.llm.module.entity.Iab;
 import com.mcp.rag.llm.module.service.IabCategoriesService;
 import com.opencsv.CSVReader;
@@ -27,6 +28,9 @@ public class DataInitializer implements CommandLineRunner {
 
     @Value("${dataFileName:iab.csv}")
     private String dataFileName;
+
+    @Value("${batchEmbeddingSize:90}")
+    private int BATCH_SIZE; // Google's limit
     
     @Autowired
     public DataInitializer(IabCategoriesService iabService, ResourceLoader resourceLoader, VectorStore vectorStore) {
@@ -39,7 +43,7 @@ public class DataInitializer implements CommandLineRunner {
     public void run(String... args) throws Exception {
         // Check if iabs already exist to avoid duplicates
         if (iabService.getAllIabs().size() == 0) {
-            //loadInitialData();
+            loadInitialData();
         }
     }
 
@@ -53,40 +57,10 @@ public class DataInitializer implements CommandLineRunner {
             List<String[]> allRows = reader.readAll();
 
             // Skip header and process rows
+            Iab iab;
             for (int i = 1; i < allRows.size(); i++) {
                 String[] row = allRows.get(i);
-
-                // Get values by index
-                Long id = null;
-                Long parentId = null;
-                String name = null;
-                String tier1 = null;
-                String tier2 = null;
-                String tier3 = null;
-                String tier4 = null;
-
-                if(row[0].trim().length() != 0){
-                    id = Long.valueOf(row[0].trim());
-                }
-                if(row[1].trim().length() != 0){
-                    parentId = Long.valueOf(row[1].trim());
-                }
-                if(row[2].trim().length() != 0){
-                    name = row[2].trim();
-                }
-                if(row[3].trim().length() != 0){
-                    tier1 = row[3].trim();
-                }
-                if(row[4].trim().length() != 0){
-                    tier2 = row[4].trim();
-                }
-                if(row[5].trim().length() != 0){
-                    tier3 = row[5].trim();
-                }
-                if(row[6].trim().length() != 0){
-                    tier4 = row[6].trim();
-                }
-                Iab iab = new Iab (id, parentId, name, tier1, tier2, tier3, tier4);
+                iab = getIabObject(row);
                 iabService.addIab(iab);
                 list.add(iab);
             }
@@ -94,6 +68,41 @@ public class DataInitializer implements CommandLineRunner {
         } catch (Exception e) {
             throw new RuntimeException("Failed to load CSV: " + e.getMessage());
         }
+    }
+
+    private Iab getIabObject(String[] row) {
+        // Get values by index
+        Long id = null;
+        Long parentId = null;
+        String name = null;
+        String tier1 = null;
+        String tier2 = null;
+        String tier3 = null;
+        String tier4 = null;
+
+        if(row[0].trim().length() != 0){
+            id = Long.valueOf(row[0].trim());
+        }
+        if(row[1].trim().length() != 0){
+            parentId = Long.valueOf(row[1].trim());
+        }
+        if(row[2].trim().length() != 0){
+            name = row[2].trim();
+        }
+        if(row[3].trim().length() != 0){
+            tier1 = row[3].trim();
+        }
+        if(row[4].trim().length() != 0){
+            tier2 = row[4].trim();
+        }
+        if(row[5].trim().length() != 0){
+            tier3 = row[5].trim();
+        }
+        if(row[6].trim().length() != 0){
+            tier4 = row[6].trim();
+        }
+        Iab iab = new Iab (id, parentId, name, tier1, tier2, tier3, tier4);
+        return iab;
     }
 
     public String generateEmbeddingText(Iab iab) {
@@ -112,29 +121,29 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     public void embedAndStoreData(List<Iab> iabList) {
+        // 1. Create documents (your existing code)
         List<Document> documents = iabList.stream().map(iab -> {
-            // 1. Create the semantic text for the embedding model
             String content = generateEmbeddingText(iab);
-
-            // 2. Store original fields as metadata for filtering later
             Map<String, Object> metadata = new HashMap<>();
             metadata.put("id", iab.getId());
             metadata.put("name", iab.getName());
-            if(iab.getParentId() != null)
-                metadata.put("parentId", iab.getParentId());
-            if(iab.getTier1() != null)
-                metadata.put("tier1", iab.getTier1());
-            if(iab.getTier2() != null)
-                metadata.put("tier2", iab.getTier2());
-            if(iab.getTier3() != null)
-                metadata.put("tier3", iab.getTier3());
-            if(iab.getTier4() != null)
-                metadata.put("tier4", iab.getTier4());
-            // Add other tiers if needed for filtering
-
+            if(iab.getParentId() != null) metadata.put("parentId", iab.getParentId());
+            if(iab.getTier1() != null) metadata.put("tier1", iab.getTier1());
+            if(iab.getTier2() != null) metadata.put("tier2", iab.getTier2());
+            if(iab.getTier3() != null) metadata.put("tier3", iab.getTier3());
+            if(iab.getTier4() != null) metadata.put("tier4", iab.getTier4());
             return new Document(content, metadata);
         }).collect(Collectors.toList());
 
-        vectorStore.add(documents);
+        // 2. Split into batches and process
+        List<List<Document>> batches = Lists.partition(documents, BATCH_SIZE);
+
+        for (int i = 0; i < batches.size(); i++) {
+            try {
+                vectorStore.add(batches.get(i));
+            }catch(Exception e){
+
+            }
+        }
     }
 }

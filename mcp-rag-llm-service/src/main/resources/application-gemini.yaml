@@ -1,0 +1,21 @@
+llm.provider: gemini   #gemini or ollama
+
+spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.ai.model.ollama.autoconfigure.OllamaEmbeddingAutoConfiguration
+
+
+# Disable Ollama embedding auto-config
+  ai:
+    google:
+      genai:
+        api-key: "{API_KEY}"
+        chat:
+          options:
+            model: gemini-2.0-flash
+        embedding:
+          enabled: true
+          model: gemini-embedding-001 #embedding-001 #text-embedding-004
+
+#curl -vvv "https://generativelanguage.googleapis.com/v1beta/models?key=api_key"
