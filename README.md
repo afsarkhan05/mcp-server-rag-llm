@@ -304,13 +304,13 @@ The application supports multiple Spring profiles that can be combined to achiev
 
 ### Profile Matrix
 
-| Profile | Description                                           | Embedding Model           | Resioning Model |
-|--------|-------------------------------------------------------|---------------------------|----------|
-| `sse`,`gemini` | Server-Sent Events communication for web/remote integrations. | gemini                    | gemini   |
-| `sse`,`ollama` | Server-Sent Events communication for web/remote integrations. | ollama (local)            | ollama (local) |
-| `stdio`,`gemini` | Standard I/O for Claude Desktop integration           | gemini                    | claude desktop |
-| `stdio`,`ollama` | Standard I/O for Claude Desktop integration           | ollama (local)            | claude desktop |
-| `stdio` | Standard I/O for Claude Desktop integration           | ollama (local as default) | claude desktop ||
+| Profile | Description                                           | Embedding Model           | Reasioning Model |
+|--------|-------------------------------------------------------|---------------------------|------------------|
+| `sse`,`gemini` | Server-Sent Events communication for web/remote integrations. | gemini                    | gemini           |
+| `sse`,`ollama` | Server-Sent Events communication for web/remote integrations. | ollama (local)            | ollama (local)   |
+| `stdio`,`gemini` | Standard I/O for Claude Desktop integration           | gemini                    | claude desktop   |
+| `stdio`,`ollama` | Standard I/O for Claude Desktop integration           | ollama (local)            | claude desktop   |
+| `stdio` | Standard I/O for Claude Desktop integration           | ollama (local as default) | claude desktop   ||
 
 
 
