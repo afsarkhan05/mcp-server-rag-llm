@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: sse,gemini
+    active: http,ollama
 
   application:
     name: mcp-server-rag-llm

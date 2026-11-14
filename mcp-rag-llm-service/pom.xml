@@ -105,20 +105,13 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- Spring Boot Test Starter (includes JUnit 5, Mockito, AssertJ) -->
-        <!-- Source: https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-test -->
+        <!-- Spring Boot Test Starter (JUnit 5, Mockito, AssertJ, Spring Test).
+             Version is managed by the parent (spring-boot-starter-parent 4.0.1); do NOT pin a
+             different version here, a 4.1.0-M1 test jar on a 4.0.1 runtime breaks the test classpath. -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
-            <version>4.1.0-M1</version>
             <scope>test</scope>
-        </dependency>
-        <!-- Source: https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-test-autoconfigure -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-test-autoconfigure</artifactId>
-            <version>4.1.0-M1</version>
-            <scope>compile</scope>
         </dependency>
 
         <!-- Cucumber Dependencies -->

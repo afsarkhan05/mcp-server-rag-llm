@@ -1,0 +1,30 @@
+spring:
+  main:
+    web-application-type: servlet
+  ai:
+    mcp:
+      server:
+        name: mcp-server-rag-llm
+        version: 1.0.0
+        type: sync
+        protocol: STREAMABLE
+        streamable-http:
+          mcp-endpoint: /mcp
+        capabilities:
+          tool: true
+          resource: true
+          prompt: true
+          completion: true
+  h2:
+    console:
+      enabled: false        # was true; don't expose it on a shared port
+
+server:
+  port: 8080
+  address: 127.0.0.1        # local use; change to 0.0.0.0 in Docker
+
+logging:
+  level:
+    root: INFO
+    com.mcp.rag: DEBUG
+    io.modelcontextprotocol: INFO

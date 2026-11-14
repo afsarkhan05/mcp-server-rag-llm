@@ -32,6 +32,11 @@ public class OllamaLLMProvider implements LLMProvider {
     @Override
     public RagResponse generateAnswer(String userQuery) {
 
+        if (userQuery == null || userQuery.isBlank()) {
+            throw new IllegalArgumentException("Question must not be null or blank");
+        }
+        long start = System.currentTimeMillis();
+
         String[] myArgs = {"get_all_iabs", "get_iab_by_id", "search_iabs_by_name_using_qdrant","search_iabs_by_name","detail_about_developer","redis_stats"};
 
         // 1. Define the System instructions
@@ -68,8 +73,9 @@ public class OllamaLLMProvider implements LLMProvider {
 
         return RagResponse.builder()
                 .answer(answer)
-                //.sources(sources)
+                .sources(List.of())
                 .modelUsed(ollamaModelName)
+                .latencyMs(System.currentTimeMillis() - start)
                 .build();
     }
 }

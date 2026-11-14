@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/rag")
 public class AIController {
     private final LLMProvider llmProvider;
 
@@ -16,6 +16,9 @@ public class AIController {
 
     @GetMapping("/ask")
     public ResponseEntity<RagResponse> askQuestion(@RequestParam String question) {
+        if (question == null || question.isBlank()) {
+            throw new IllegalArgumentException("Question must not be empty");
+        }
         return ResponseEntity.ok(llmProvider.generateAnswer(question));
     }
 }
